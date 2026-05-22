@@ -6,9 +6,14 @@ const path = require('path');
 const { nanoid } = require('nanoid');
 const admin = require('firebase-admin');
 const redisUtils = require('./src/utils/redis.utils');
+const redirectCache = require('./src/utils/redirect-cache.utils');
 require('dotenv').config();
 
 // Initialize Firebase Admin
+let db = null;
+fix/firebase-crash
+let auth = null;
+main
 try {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -17,13 +22,20 @@ try {
       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
     })
   });
+fix/firebase-crash
+
+  db = admin.firestore();
+  auth = admin.auth();
+
+=======
+  db = admin.firestore();
+main
   console.log('✅ Firebase Admin initialized');
 } catch (error) {
-  console.log('⚠️  Firebase Admin not configured. Using in-memory storage.');
+  console.log('⚠️ Firebase Admin not configured. Using in-memory storage.');
   console.log('   See FIREBASE_SETUP.md for setup instructions.');
+  // db and auth remain null - app will use in-memory fallback
 }
-
-const db = admin.firestore();
 
 const app = express();
 const server = http.createServer(app);
@@ -49,7 +61,7 @@ function fromFirestoreId(firestoreId) {
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('public', { index: false }));
 
 // Firestore Collections
 const COLLECTIONS = {
@@ -59,7 +71,15 @@ const COLLECTIONS = {
 };
 
 // Middleware to verify Firebase token
+// Middleware to verify Firebase token
 async function verifyToken(req, res, next) {
+  // If Firebase Auth is not available, reject with clear message
+  if (!auth) {
+    return res.status(503).json({ 
+      error: 'Authentication service unavailable. Please configure Firebase.' 
+    });
+  }
+
   const authHeader = req.headers.authorization;
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -69,7 +89,7 @@ async function verifyToken(req, res, next) {
   const token = authHeader.split('Bearer ')[1];
   
   try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
     req.user = decodedToken;
     next();
   } catch (error) {
@@ -115,6 +135,73 @@ function addUTMParams(url, utmParams) {
     return urlObj.toString();
   } catch (e) {
     return null;
+  }
+}
+
+async function resolveLinkForRedirect(shortCode) {
+  const cachedLink = await redirectCache.get(shortCode);
+  if (cachedLink) {
+    return { link: cachedLink, cacheStatus: 'hit' };
+  }
+
+  if (db) {
+    try {
+      const firestoreId = toFirestoreId(shortCode);
+      const linkDoc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
+      if (linkDoc.exists) {
+        const link = normalizeRedirectLink(linkDoc.data());
+        await redirectCache.set(shortCode, link);
+        return { link, cacheStatus: 'miss' };
+      }
+    } catch (error) {
+      console.error('Error reading link from Firestore:', error);
+    }
+  }
+
+  const fallbackLink = links.get(shortCode);
+  if (fallbackLink) {
+    const normalizedLink = normalizeRedirectLink(fallbackLink);
+    await redirectCache.set(shortCode, normalizedLink);
+    return { link: normalizedLink, cacheStatus: 'miss' };
+  }
+
+  return { link: null, cacheStatus: 'miss' };
+}
+
+function normalizeRedirectLink(linkData) {
+  if (!linkData) {
+    return null;
+  }
+
+  return {
+    originalUrl: linkData.originalUrl,
+    shortCode: linkData.shortCode || '',
+    userId: linkData.userId || '',
+    isActive: linkData.isActive !== false,
+    title: linkData.title || '',
+  };
+}
+
+async function resolveBioLinkStatus(shortCode) {
+  const cacheKey = `bio-link:${shortCode}`;
+  const cachedStatus = await redirectCache.get(cacheKey);
+
+  if (cachedStatus && typeof cachedStatus.exists === 'boolean') {
+    return cachedStatus;
+  }
+
+  if (!db) {
+    return { exists: false };
+  }
+
+  try {
+    const bioLinkDoc = await db.collection('bioLinks').where('slug', '==', shortCode).limit(1).get();
+    const status = { exists: !bioLinkDoc.empty };
+    await redirectCache.set(cacheKey, status);
+    return status;
+  } catch (error) {
+    console.error('Error checking bio link:', error);
+    return { exists: false };
   }
 }
 
@@ -257,6 +344,7 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
       createdAt: Date.now(),
       title: linkData.title || '',
     });
+    await redirectCache.set(shortCode, normalizeRedirectLink(linkData));
     
     // Verify the save by reading it back
     const verifyDoc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
@@ -279,6 +367,7 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
     // Fallback to in-memory storage
     links.set(shortCode, linkData);
     analytics.set(shortCode, analyticsData);
+    await redirectCache.set(shortCode, normalizeRedirectLink(linkData));
     
     res.json({
       success: true,
@@ -574,6 +663,36 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
   }
 });
 
+// Delete a user account (requires authentication)
+app.delete('/api/user', verifyToken, async (req, res) => {
+  const userId = req.user.uid;
+  
+  try {
+    if (db) {
+      const linksSnapshot = await db.collection(COLLECTIONS.LINKS)
+                                    .where('userId', '==', userId).get();
+
+      const batch = db.batch();
+      linksSnapshot.docs.forEach(doc => {
+          batch.delete(db.collection(COLLECTIONS.LINKS).doc(doc.id));
+          batch.delete(db.collection(COLLECTIONS.ANALYTICS).doc(doc.id));
+      });
+
+      batch.delete(db.collection(COLLECTIONS.USERS).doc(userId));
+      await batch.commit();
+
+      if (admin.apps.length > 0) {
+        await admin.auth().deleteUser(userId);
+      }
+    }
+    
+    res.json({ success: true, message: 'Account permanently deleted' });
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    res.status(500).json({ error: 'Failed to delete account' });
+  }
+});
+
 // Delete a link (requires authentication and ownership)
 app.delete('/api/links/:shortCode', verifyToken, async (req, res) => {
   let { shortCode } = req.params;
@@ -607,6 +726,7 @@ app.delete('/api/links/:shortCode', verifyToken, async (req, res) => {
     
     // Delete from Redis
     await redisUtils.deleteLinkFromRedis(shortCode);
+    await redirectCache.delete(shortCode);
     
     res.json({ success: true, message: 'Link deleted successfully' });
   } catch (error) {
@@ -830,24 +950,7 @@ app.head('/:shortCode', async (req, res) => {
 app.get('/:username/:slug', async (req, res) => {
   const { username, slug } = req.params;
   const shortCode = `${username}/${slug}`;
-  
-  let link = null;
-  
-  try {
-    // Convert to Firestore-safe ID (username_slug) for lookup
-    const firestoreId = toFirestoreId(shortCode);
-    const linkDoc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
-    if (linkDoc.exists) {
-      link = linkDoc.data();
-    }
-  } catch (error) {
-    console.error('Error reading link from Firestore:', error);
-  }
-  
-  // Fallback to in-memory
-  if (!link) {
-    link = links.get(shortCode);
-  }
+  const { link } = await resolveLinkForRedirect(shortCode);
   
   if (!link) {
     return res.status(404).send('Link not found');
@@ -1032,34 +1135,14 @@ app.get('/:shortCode', async (req, res) => {
   const { shortCode } = req.params;
   
   // First check if it's a bio link
-  try {
-    const bioLinkDoc = await db.collection('bioLinks').where('slug', '==', shortCode).limit(1).get();
-    if (!bioLinkDoc.empty) {
-      // It's a bio link, serve bio.html
-      return res.sendFile(path.join(__dirname, 'public', 'bio.html'));
-    }
-  } catch (error) {
-    console.error('Error checking bio link:', error);
+  const bioLinkStatus = await resolveBioLinkStatus(shortCode);
+  if (bioLinkStatus.exists) {
+    // It's a bio link, serve bio.html
+    return res.sendFile(path.join(__dirname, 'public', 'bio.html'));
   }
   
   // Not a bio link, try as regular short link
-  let link = null;
-  
-  try {
-    // Convert to Firestore-safe ID for lookup
-    const firestoreId = toFirestoreId(shortCode);
-    const linkDoc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
-    if (linkDoc.exists) {
-      link = linkDoc.data();
-    }
-  } catch (error) {
-    console.error('Error reading link from Firestore:', error);
-  }
-  
-  // Fallback to in-memory
-  if (!link) {
-    link = links.get(shortCode);
-  }
+  const { link } = await resolveLinkForRedirect(shortCode);
   
   if (!link) {
     return res.status(404).send('Link not found');

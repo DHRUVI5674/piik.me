@@ -377,15 +377,24 @@ body {
     letter-spacing: 0.05em;
     text-transform: uppercase;
     transition: color 0.2s ease;
+    text-decoration: none;
 }
 
 .simple-nav-link:hover {
     color: #ffffff;
 }
 
+.simple-nav-link:hover,
+.simple-nav-link:focus,
+.simple-nav-link:active,
+.simple-nav-link:visited {
+    text-decoration: none;
+}
+
 /* Simple Buttons */
 .simple-btn-primary {
     padding: 0.5rem 1.25rem;
+    min-height: 2.75rem;
     font-size: 0.8125rem;
     font-weight: 600;
     color: #000000;
@@ -407,6 +416,7 @@ body {
 
 .simple-btn-secondary {
     padding: 0.5rem 1.25rem;
+    min-height: 2.75rem;
     font-size: 0.8125rem;
     font-weight: 600;
     color: #ffffff;
@@ -425,6 +435,141 @@ body {
     background: #ffffff;
     color: #000000;
     transform: translateY(-1px);
+}
+
+.landing-nav-brand,
+.landing-nav-brand:hover,
+.landing-nav-brand:focus,
+.landing-nav-brand:active,
+.landing-nav-brand:visited,
+.landing-nav-toggle,
+.landing-nav-toggle:hover,
+.landing-nav-toggle:focus,
+.landing-nav-toggle:active,
+.landing-mobile-link,
+.landing-mobile-link:hover,
+.landing-mobile-link:focus,
+.landing-mobile-link:active,
+.landing-mobile-link:visited,
+.landing-mobile-close,
+.landing-mobile-close:hover,
+.landing-mobile-close:focus,
+.landing-mobile-close:active,
+.landing-mobile-close:visited,
+.landing-mobile-button,
+.landing-mobile-button:hover,
+.landing-mobile-button:focus,
+.landing-mobile-button:active {
+    text-decoration: none;
+}
+
+.landing-nav-toggle,
+.landing-mobile-close {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: #ffffff;
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+}
+
+.landing-nav-toggle:hover,
+.landing-nav-toggle:focus,
+.landing-nav-toggle:active,
+.landing-mobile-close:hover,
+.landing-mobile-close:focus,
+.landing-mobile-close:active {
+    background: transparent;
+    color: #ffffff;
+}
+
+.landing-nav-toggle i,
+.landing-mobile-close i {
+    color: inherit;
+}
+
+@media (min-width: 768px) {
+    .landing-nav-toggle.md\:hidden {
+        display: none;
+    }
+
+    .hidden.md\:flex {
+        display: flex;
+    }
+}
+
+.landing-mobile-menu {
+    padding: max(5rem, env(safe-area-inset-top)) 1.5rem max(2rem, env(safe-area-inset-bottom));
+    align-items: stretch;
+    gap: 1.75rem;
+}
+
+.landing-mobile-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.landing-mobile-menu-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.landing-mobile-menu-links {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.375rem;
+}
+
+.landing-mobile-link {
+    display: flex;
+    align-items: center;
+    min-height: 3.25rem;
+    padding: 1rem 0;
+    font-size: clamp(1.375rem, 4vw, 1.75rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.landing-mobile-menu-actions {
+    width: min(100%, 20rem);
+    margin-top: 0.25rem;
+    gap: 0.75rem;
+}
+
+.landing-mobile-button {
+    min-height: 3.25rem;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+.landing-mobile-button-secondary {
+    background: transparent;
+}
+
+.landing-mobile-button-primary {
+    border: 1px solid transparent;
+}
+
+.simple-nav-link:focus-visible,
+.simple-btn-primary:focus-visible,
+.simple-btn-secondary:focus-visible,
+.landing-nav-toggle:focus-visible,
+.landing-mobile-link:focus-visible,
+.landing-mobile-close:focus-visible,
+.landing-mobile-button:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.12);
 }
 
 /* Navigation Links */
@@ -661,6 +806,19 @@ body {
     
     .hero-section {
         min-height: 100vh;
+    }
+
+    .landing-nav-shell {
+        min-height: 4.5rem;
+    }
+
+    .landing-mobile-menu {
+        justify-content: flex-start;
+    }
+
+    .landing-mobile-menu-actions {
+        width: 100%;
+        max-width: 20rem;
     }
 }
 

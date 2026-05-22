@@ -308,9 +308,9 @@ html[data-theme="light"] .app-orb {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: none;
+    background: transparent;
     border: none;
-    color: var(--text-secondary);
+    color: #fff;
     cursor: pointer;
     font-size: 20px;
     padding: 8px;
@@ -318,9 +318,14 @@ html[data-theme="light"] .app-orb {
     transition: var(--transition-fast);
 }
 
+.sidebar-toggle i,
+.mobile-menu-btn i {
+    color: inherit;
+}
+
 .sidebar-toggle:hover {
-    background: var(--bg-hover);
-    color: var(--text-primary);
+    background: transparent;
+    color: #fff;
 }
 
 .sidebar-nav {
@@ -510,9 +515,9 @@ html[data-theme="light"] .app-orb {
 
 .mobile-menu-btn {
     display: none;
-    background: none;
+    background: transparent;
     border: none;
-    color: var(--text-primary);
+    color: #fff;
     font-size: 24px;
     cursor: pointer;
     padding: 8px;
