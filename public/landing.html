@@ -57,9 +57,9 @@
 
     <!-- Navigation -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md border-b border-white/10 transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between landing-nav-shell">
             <!-- Logo -->
-            <a href="/" class="group">
+            <a href="/" class="group landing-nav-brand">
                 <span class="text-white font-semibold text-lg tracking-tight">PIIK.ME</span>
             </a>
             <!-- Give the logo a unique class to exclude from GSAP -->
@@ -84,21 +84,49 @@
             </div>
 
             <!-- Mobile Toggle -->
-            <button class="md:hidden text-white/70 hover:text-white transition-colors" id="mobileMenuToggle">
+            <button
+                class="md:hidden text-white/70 hover:text-white transition-colors landing-nav-toggle"
+                id="mobileMenuToggle"
+                type="button"
+                aria-label="Open navigation menu"
+                aria-haspopup="dialog"
+                aria-controls="mobileMenu"
+                aria-expanded="false"
+            >
                 <i class="fas fa-bars text-xl"></i>
             </button>
         </div>
     </nav>
 
     <!-- Mobile Menu Overlay -->
-    <div class="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 md:hidden" id="mobileMenu">
-        <div class="flex flex-col items-center justify-center h-full gap-8">
-            <a href="#features" class="text-2xl font-medium text-gray-400 hover:text-white mobile-link">Platform</a>
-            <a href="#analytics" class="text-2xl font-medium text-gray-400 hover:text-white mobile-link">Analytics</a>
-            <a href="#pricing" class="text-2xl font-medium text-gray-400 hover:text-white mobile-link">Pricing</a>
-            <div class="flex flex-col gap-4 mt-8 w-64">
-                <button id="mobileLoginBtn" class="w-full py-3 text-center border border-white/10 rounded-lg text-white font-medium">Log in</button>
-                <button id="mobileGetStartedBtn" class="w-full py-3 text-center bg-accent text-white rounded-lg font-medium">Get Started</button>
+    <div
+        class="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 md:hidden"
+        id="mobileMenu"
+        aria-hidden="true"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mobileMenuTitle"
+    >
+        <div class="landing-mobile-menu flex flex-col justify-center h-full">
+            <div class="landing-mobile-menu-header">
+                <span id="mobileMenuTitle" class="landing-mobile-menu-title">Navigation</span>
+                <button
+                    type="button"
+                    class="landing-mobile-close text-white/70 hover:text-white transition-colors"
+                    id="mobileMenuClose"
+                    aria-label="Close navigation menu"
+                >
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="landing-mobile-menu-links">
+                <a href="#features" class="text-2xl font-medium text-gray-400 hover:text-white mobile-link landing-mobile-link">Platform</a>
+                <a href="#analytics" class="text-2xl font-medium text-gray-400 hover:text-white mobile-link landing-mobile-link">Analytics</a>
+                <a href="#pricing" class="text-2xl font-medium text-gray-400 hover:text-white mobile-link landing-mobile-link">Pricing</a>
+            </div>
+            <div class="landing-mobile-menu-actions flex flex-col gap-4">
+                <button id="mobileLoginBtn" class="w-full py-3 text-center border border-white/10 rounded-lg text-white font-medium landing-mobile-button landing-mobile-button-secondary" aria-label="Log in to Piik.me">Log in</button>
+                <button id="mobileGetStartedBtn" class="w-full py-3 text-center bg-accent text-white rounded-lg font-medium landing-mobile-button landing-mobile-button-primary" aria-label="Get started with Piik.me">Get Started</button>
             </div>
         </div>
     </div>

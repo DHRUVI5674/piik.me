@@ -89,32 +89,68 @@ function initGlobe() {
 function initMobileMenu() {
     const toggle = document.getElementById('mobileMenuToggle');
     const menu = document.getElementById('mobileMenu');
+    const closeButton = document.getElementById('mobileMenuClose');
     const links = document.querySelectorAll('.mobile-link');
     
     if (!toggle || !menu) return;
 
     let isOpen = false;
+    let previousFocus = null;
 
-    function toggleMenu() {
-        isOpen = !isOpen;
-        if (isOpen) {
-            menu.classList.remove('translate-x-full');
-            toggle.innerHTML = '<i class="fas fa-times text-xl"></i>';
-            document.body.style.overflow = 'hidden';
-        } else {
-            menu.classList.add('translate-x-full');
-            toggle.innerHTML = '<i class="fas fa-bars text-xl"></i>';
-            document.body.style.overflow = '';
+    function syncMenuState(open) {
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+        menu.setAttribute('aria-hidden', String(!open));
+    }
+
+    function closeMenu({ restoreFocus = true } = {}) {
+        if (!isOpen) return;
+
+        isOpen = false;
+        menu.classList.add('translate-x-full');
+        document.body.style.overflow = '';
+        syncMenuState(false);
+
+        if (restoreFocus) {
+            toggle.focus();
+        } else if (previousFocus && typeof previousFocus.focus === 'function') {
+            previousFocus.focus();
         }
     }
 
+    function toggleMenu() {
+        if (!isOpen) {
+            previousFocus = document.activeElement;
+            isOpen = true;
+            menu.classList.remove('translate-x-full');
+            document.body.style.overflow = 'hidden';
+            syncMenuState(true);
+            const firstFocusable = menu.querySelector('.mobile-link, button, [href], [tabindex]:not([tabindex="-1"])');
+            if (firstFocusable) {
+                firstFocusable.focus();
+            }
+        } else {
+            closeMenu();
+        }
+    }
+
+    syncMenuState(false);
     toggle.addEventListener('click', toggleMenu);
+    if (closeButton) {
+        closeButton.addEventListener('click', () => closeMenu());
+    }
     
     // Close on link click
     links.forEach(link => {
         link.addEventListener('click', () => {
-            if (isOpen) toggleMenu();
+            closeMenu({ restoreFocus: false });
         });
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeMenu();
+        }
     });
 }
 
