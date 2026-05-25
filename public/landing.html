@@ -84,16 +84,30 @@
     </nav>
 
     <!-- Mobile Menu Overlay -->
-    <div class="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 md:hidden" id="mobileMenu">
-        <div class="flex flex-col items-center justify-center h-full gap-8">
-            <a href="#features" class="text-2xl font-medium text-gray-400 hover:text-white transition-colors">Platform</a>
-            <a href="#analytics" class="text-2xl font-medium text-gray-400 hover:text-white transition-colors">Analytics</a>
-            <a href="#pricing" class="text-2xl font-medium text-gray-400 hover:text-white transition-colors">Pricing</a>
-                <div class="flex flex-col gap-4 mt-12 mb-12 w-64">
-                    <button id="mobileLoginBtn" class="simple-btn-secondary w-full text-center" style="padding: 0.875rem;">Log in</button>
-                    <button id="mobileGetStartedBtn" class="simple-btn-primary w-full text-center" style="padding: 0.875rem;">Get Started</button>
-                </div>
-         </div>
+    <div class="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 md:hidden flex flex-col landing-mobile-menu" id="mobileMenu">
+        <!-- Header with Title & Close Button -->
+        <div class="landing-mobile-menu-header w-full mb-8">
+            <span class="landing-mobile-menu-title">Menu</span>
+            <button class="landing-mobile-close" id="mobileMenuClose" aria-label="Close mobile menu">
+                <i class="fas fa-xmark text-xl" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="landing-mobile-menu-links flex-1">
+            <a href="#features" class="landing-mobile-link text-gray-400 hover:text-white transition-colors mobile-link">Platform</a>
+            <a href="#analytics" class="landing-mobile-link text-gray-400 hover:text-white transition-colors mobile-link">Features</a>
+            <a href="#pricing" class="landing-mobile-link text-gray-400 hover:text-white transition-colors mobile-link">Pricing</a>
+            <a href="https://github.com/xthxr/piik.me" target="_blank" rel="noopener" class="landing-mobile-link text-gray-400 hover:text-white transition-colors mobile-link">
+                <i class="fab fa-github mr-2"></i> GitHub
+            </a>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="landing-mobile-menu-actions flex flex-col w-full">
+            <button id="mobileLoginBtn" class="landing-mobile-button landing-mobile-button-secondary simple-btn-secondary w-full text-center">Log in</button>
+            <button id="mobileGetStartedBtn" class="landing-mobile-button landing-mobile-button-primary simple-btn-primary w-full text-center">Get Started</button>
+        </div>
     </div>
 
 

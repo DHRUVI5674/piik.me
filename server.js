@@ -10,6 +10,8 @@ const redirectCache = require('./src/utils/redirect-cache.utils');
 const splitTestService = require('./src/services/splitTest.service');
 require('dotenv').config();
 
+const { securityHeaders, apiLimiter } = require("./src/middleware/security.middleware");
+
 // Initialize Firebase Admin
 let db = null;
 let auth = null;
@@ -55,6 +57,8 @@ function fromFirestoreId(firestoreId) {
 }
 
 // Middleware
+app.use(securityHeaders);
+app.use(apiLimiter);
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public', { index: false }));
