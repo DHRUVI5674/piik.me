@@ -770,10 +770,16 @@ function showLandingPage() {
     const loginModal = document.getElementById('loginModal');
     const landingPage = document.getElementById('landingPage');
     const appContainer = document.getElementById('app');
-    
-    if (landingPage) landingPage.style.display = 'block';
-    if (loginModal) loginModal.style.display = 'none';
+
+    if (landingPage) {
+        landingPage.style.display = 'block';
+        if (loginModal) loginModal.style.display = 'none';
+        if (appContainer) appContainer.style.display = 'none';
+        return;
+    }
+
     if (appContainer) appContainer.style.display = 'none';
+    if (loginModal) loginModal.style.display = 'flex';
 }
 
 async function handleLogout(e) {
