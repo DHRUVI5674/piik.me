@@ -6,6 +6,7 @@ const path = require('path');
 const { nanoid } = require('nanoid');
 const admin = require('firebase-admin');
 const redisUtils = require('./src/utils/redis.utils');
+const { securityHeaders, apiLimiter } = require('./src/middleware/security.middleware');
 require('dotenv').config();
 const fetch = (...args) => {
   if (typeof globalThis.fetch === 'function') {
