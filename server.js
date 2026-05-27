@@ -73,6 +73,11 @@ app.use(apiLimiter);
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public', { index: false }));
+app.use((req, res, next) => {
+  req.firebase = { ...firebaseState };
+  res.setHeader('X-Firebase-Mode', firebaseState.mode);
+  next();
+});
 
 // Firestore Collections
 const COLLECTIONS = {
@@ -108,6 +113,17 @@ async function verifyToken(req, res, next) {
     return res.status(401).json({ error: 'Invalid token' });
   }
 }
+
+app.get('/api/system/status', (req, res) => {
+  res.json({
+    success: true,
+    firebase: {
+      enabled: firebaseState.enabled,
+      mode: firebaseState.mode,
+      reason: firebaseState.reason
+    }
+  });
+});
 
 // In-memory database (fallback if Firebase not configured)
 const links = new Map();
