@@ -121,7 +121,7 @@
     <!-- Hero Section -->
     <section class="relative min-h-screen flex flex-col justify-center pt-32 pb-32 overflow-hidden bg-black hero-bg-section">
         <canvas id="globeViz" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
-        
+
         <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none" style="z-index: 2;"></div>
 
         <div class="relative w-full max-w-7xl mx-auto px-6 text-center mt-10 hero-content-wrapper" style="z-index: 10;">
@@ -129,192 +129,57 @@
                 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 animate-fade-in-up w-fit mx-auto backdrop-blur-md">
                     <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                     <span class="text-sm text-gray-200 font-medium">Beta v0.2 is Now Live -</span>
-                    <a href="https://github.com/xthxr/piik.me/releases" target="_blank" rel="noopener" class="ml-1 font-semibold text-white bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 bg-[length:200%_auto] bg-clip-text text-transparent shine-effect hover:opacity-80 transition-opacity" style="text-decoration:none;">
+                    <a href="https://github.com/xthxr/piik.me/releases" target="_blank" rel="noopener" class="ml-1 font-semibold text-white bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 bg-[length:200%_auto] bg-clip-text text-transparent shine-effect hover:opacity-80 transition-opacity" style="text-decoration: none;">
                         <span class="shine-text">What's Newww?</span>
                     </a>
                 </div>
-
-                <!-- Right Side Actions -->
-                <div class="hidden md:flex items-center gap-3">
-                    <button id="loginBtn" class="simple-btn-secondary">
-                        LOG IN
-                    </button>
-                    <button id="getStartedBtn" class="simple-btn-primary">
-                        GET STARTED
-                    </button>
-                </div>
-
-                <!-- Mobile Toggle -->
-                <button
-                    class="md:hidden text-white/70 hover:text-white transition-colors p-2"
-                    id="mobileMenuToggle"
-                    aria-label="Open mobile menu"
-                >
-                    <i class="fas fa-bars text-xl" aria-hidden="true"></i>
-                </button>
             </div>
-        </nav>
+            <style>
+                .shine-effect .shine-text {
+                    background: linear-gradient(
+                        90deg,
+                        #fff 0%,
+                        #ffe066 40%,
+                        #fff 60%,
+                        #ffe066 100%
+                    );
+                    background-size: 200% auto;
+                    color: #fff;
+                    background-clip: text;
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    animation: shine-move 2s linear infinite;
+                }
+                @keyframes shine-move {
+                    0% {
+                        background-position: 200% center;
+                    }
+                    100% {
+                        background-position: 0% center;
+                    }
+                }
+            </style>
 
-        <!-- Mobile Menu Overlay -->
-        <div
-            class="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 md:hidden"
-            id="mobileMenu"
-        >
-            <div class="flex flex-col items-center justify-center h-full gap-8">
-                <a
-                    href="#features"
-                    class="text-2xl font-medium text-gray-400 hover:text-white transition-colors"
-                    >Platform</a
-                >
-                <a
-                    href="#analytics"
-                    class="text-2xl font-medium text-gray-400 hover:text-white transition-colors"
-                    >Analytics</a
-                >
-                <a
-                    href="#pricing"
-                    class="text-2xl font-medium text-gray-400 hover:text-white transition-colors"
-                    >Pricing</a
-                >
-                <div class="flex flex-col gap-4 mt-12 mb-12 w-64">
-                    <button
-                        id="mobileLoginBtn"
-                        class="simple-btn-secondary w-full text-center"
-                        style="padding: 0.875rem"
-                    >
-                        Log in
-                    </button>
-                    <button
-                        id="mobileGetStartedBtn"
-                        class="simple-btn-primary w-full text-center"
-                        style="padding: 0.875rem"
-                    >
-                        Get Started
-                    </button>
-                </div>
+            <h1 class="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-tight animate-fade-in-up" style="animation-delay: 0.1s;">
+                Links turned into <br />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">intelligent assets.</span>
+            </h1>
+
+            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up" style="animation-delay: 0.2s;">
+                The open-source link infrastructure for modern businesses.
+                <br class="hidden md:block" />Real-time analytics, custom domains, and zero latency redirects.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style="animation-delay: 0.3s;">
+                <button id="heroStartBtn" class="simple-btn-primary w-full sm:w-auto" style="padding: 1rem 2rem; font-size: 0.875rem;">
+                    Start for free
+                </button>
+                <a href="#features" class="simple-btn-secondary w-full sm:w-auto" style="padding: 1rem 2rem; font-size: 0.875rem; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(4px);">
+                    View features
+                </a>
             </div>
         </div>
-
-        <!-- Hero Section -->
-        <section
-            class="relative min-h-screen flex flex-col justify-center pt-32 pb-32 overflow-hidden"
-            style="background: black"
-        >
-            <canvas
-                id="globeViz"
-                style="
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    z-index: 1;
-                    pointer-events: none;
-                "
-            ></canvas>
-
-            <div
-                class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"
-                style="z-index: 2"
-            ></div>
-
-            <div
-                class="relative w-full max-w-7xl mx-auto px-6 text-center mt-10"
-                style="z-index: 10"
-            >
-                <div class="flex justify-center">
-                    <div
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 animate-fade-in-up w-fit mx-auto backdrop-blur-md"
-                    >
-                        <span
-                            class="w-2 h-2 rounded-full bg-green-500 animate-pulse"
-                        ></span>
-                        <span class="text-sm text-gray-200 font-medium"
-                            >Beta v0.2 is Now Live -</span
-                        >
-                        <a
-                            href="https://github.com/xthxr/piik.me/releases"
-                            target="_blank"
-                            rel="noopener"
-                            class="ml-1 font-semibold text-white bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 bg-[length:200%_auto] bg-clip-text text-transparent shine-effect hover:opacity-80 transition-opacity"
-                            style="text-decoration: none"
-                        >
-                            <span class="shine-text">What's Newww?</span>
-                        </a>
-                    </div>
-                    <style>
-                        .shine-effect .shine-text {
-                            background: linear-gradient(
-                                90deg,
-                                #fff 0%,
-                                #ffe066 40%,
-                                #fff 60%,
-                                #ffe066 100%
-                            );
-                            background-size: 200% auto;
-                            color: #fff;
-                            background-clip: text;
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                            animation: shine-move 2s linear infinite;
-                        }
-                        @keyframes shine-move {
-                            0% {
-                                background-position: 200% center;
-                            }
-                            100% {
-                                background-position: 0% center;
-                            }
-                        }
-                    </style>
-                </div>
-
-                <h1
-                    class="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-tight animate-fade-in-up"
-                    style="animation-delay: 0.1s"
-                >
-                    Links turned into <br />
-                    <span
-                        class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500"
-                        >intelligent assets.</span
-                    >
-                </h1>
-
-                <p
-                    class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up"
-                    style="animation-delay: 0.2s"
-                >
-                    The open-source link infrastructure for modern businesses.
-                    <br class="hidden md:block" />Real-time analytics, custom
-                    domains, and zero latency redirects.
-                </p>
-
-                <div
-                    class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up"
-                    style="animation-delay: 0.3s"
-                >
-                    <button
-                        id="heroStartBtn"
-                        class="simple-btn-primary w-full sm:w-auto"
-                        style="padding: 1rem 2rem; font-size: 0.875rem"
-                    >
-                        Start for free
-                    </button>
-                    <a
-                        href="#features"
-                        class="simple-btn-secondary w-full sm:w-auto"
-                        style="
-                            padding: 1rem 2rem;
-                            font-size: 0.875rem;
-                            background: rgba(255, 255, 255, 0.05);
-                            backdrop-filter: blur(4px);
-                        "
-                    >
-                        View features
-                    </a>
-                </div>
-            </div>
-        </section>
+    </section>
 
         <!-- Features Grid -->
         <section class="py-24 relative z-20 bg-black" id="features">
