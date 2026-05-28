@@ -8,12 +8,19 @@ const admin = require('firebase-admin');
 const fetch = require('node-fetch');
 const redisUtils = require('./src/utils/redis.utils');
 const redirectCache = require('./src/utils/redirect-cache.utils');
-const splitTestService = require('./src/services/splitTest.service');
+const { securityHeaders, apiLimiter } = require('./src/middleware/security.middleware');
 require('dotenv').config();
+const fetch = (...args) => {
+  if (typeof globalThis.fetch === 'function') {
+    return globalThis.fetch(...args);
+  }
 
-const { securityHeaders, apiLimiter } = require("./src/middleware/security.middleware");
+  return import('node-fetch').then(({ default: fetchFn }) => fetchFn(...args));
+};
+
 // Initialize Firebase Admin
 let db = null;
+
 let auth = null;
 
 try {
@@ -28,6 +35,9 @@ try {
   db = admin.firestore();
   auth = admin.auth();
 
+
+  db = admin.firestore();
+
   console.log('✅ Firebase Admin initialized');
 } catch (error) {
   console.log('⚠️ Firebase Admin not configured. Using in-memory storage.');
@@ -35,13 +45,16 @@ try {
 }
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
-});
+const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const server = isServerless ? null : http.createServer(app);
+const io = isServerless
+  ? { emit: () => {} }
+  : socketIo(server, {
+      cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+      }
+    });
 
 // Helper function to convert shortCode to Firestore-safe document ID
 // Firestore document IDs cannot contain '/' so we replace with '_'
@@ -61,6 +74,11 @@ app.use(apiLimiter);
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public', { index: false }));
+app.use((req, res, next) => {
+  req.firebase = { ...firebaseState };
+  res.setHeader('X-Firebase-Mode', firebaseState.mode);
+  next();
+});
 
 // Firestore Collections
 const COLLECTIONS = {
@@ -96,6 +114,17 @@ async function verifyToken(req, res, next) {
     return res.status(401).json({ error: 'Invalid token' });
   }
 }
+
+app.get('/api/system/status', (req, res) => {
+  res.json({
+    success: true,
+    firebase: {
+      enabled: firebaseState.enabled,
+      mode: firebaseState.mode,
+      reason: firebaseState.reason
+    }
+  });
+});
 
 // In-memory database (fallback if Firebase not configured)
 const links = new Map();
@@ -1400,22 +1429,26 @@ app.post('/api/admin/sync-redis', verifyToken, async (req, res) => {
   }
 });
 
-// Socket.IO connection
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
-  
-  socket.on('subscribe', (shortCode) => {
-    console.log(`Client ${socket.id} subscribed to ${shortCode}`);
-    socket.join(`analytics:${shortCode}`);
+if (!isServerless) {
+  // Socket.IO connection
+  io.on('connection', (socket) => {
+    console.log('Client connected:', socket.id);
+    
+    socket.on('subscribe', (shortCode) => {
+      console.log(`Client ${socket.id} subscribed to ${shortCode}`);
+      socket.join(`analytics:${shortCode}`);
+    });
+    
+    socket.on('disconnect', () => {
+      console.log('Client disconnected:', socket.id);
+    });
   });
-  
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
-});
 
-// Start server
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`🚀 Link360 server running on http://localhost:${PORT}`);
-});
+  // Start server
+  const PORT = process.env.PORT || 3000;
+  server.listen(PORT, () => {
+    console.log(`🚀 Link360 server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
