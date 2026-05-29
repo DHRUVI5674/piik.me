@@ -1120,6 +1120,16 @@ async function handleCreateLink() {
             })
         });
         
+        if (!response.ok) {
+            let errorMsg = 'Failed to create link';
+            try {
+                const errData = await response.json();
+                errorMsg = errData.error || errData.message || errorMsg;
+            } catch (_) {}
+            showToast(errorMsg, 'error');
+            return;
+        }
+        
         const data = await response.json();
         console.log('Link creation response:', data);
         
@@ -1135,7 +1145,7 @@ async function handleCreateLink() {
         }
     } catch (error) {
         console.error('Error:', error);
-        showToast('Failed to create link. Please try again.', 'error');
+        showToast(error.message || 'Failed to create link. Please try again.', 'error');
     } finally {
         createLinkSubmit.disabled = false;
         createLinkSubmit.innerHTML = '<i class="fas fa-plus"></i> Create Link';
