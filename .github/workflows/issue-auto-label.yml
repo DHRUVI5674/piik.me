@@ -40,6 +40,8 @@ jobs:
               ['performance', ['performance', 'optimize', 'speed', 'slow', 'latency']],
               ['security', ['security', 'vulnerability', 'auth', 'xss', 'injection']]
             ];
+            const easySignal = ['typo', 'docs', 'text', 'copy', 'small', 'minor', 'ui'];
+            const hardSignal = ['architecture', 'refactor', 'security', 'database', 'migration', 'performance'];
 
             const typeLabels = [...repoLabelNames].filter((label) => label.toLowerCase().startsWith('type:'));
             const levelLabels = [...repoLabelNames].filter((label) => label.toLowerCase().startsWith('level:'));
@@ -88,8 +90,6 @@ jobs:
             const chooseLevelLabel = () => {
               if (!levelLabels.length) return null;
 
-              const easySignal = ['typo', 'docs', 'text', 'copy', 'small', 'minor', 'ui'];
-              const hardSignal = ['architecture', 'refactor', 'security', 'database', 'migration', 'performance'];
               const difficulty = hardSignal.some((word) => text.includes(word))
                 ? 'hard'
                 : easySignal.some((word) => text.includes(word))
