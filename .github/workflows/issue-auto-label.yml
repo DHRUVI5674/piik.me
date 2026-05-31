@@ -1,15 +1,18 @@
-name: Auto-label new issues
+name: Auto-label new issues and pull requests
 
 on:
   issues:
+    types: [opened]
+  pull_request:
     types: [opened]
 
 permissions:
   contents: read
   issues: write
+  pull-requests: write
 
 jobs:
-  label-issue:
+  label-item:
     runs-on: ubuntu-latest
     steps:
       - name: Apply labels
@@ -18,13 +21,13 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const issue = context.payload.issue;
-            const issueNumber = issue.number;
-            const title = (issue.title || '').toLowerCase();
-            const body = (issue.body || '').toLowerCase();
+            const item = context.payload.pull_request || context.payload.issue;
+            const itemNumber = item.number;
+            const title = (item.title || '').toLowerCase();
+            const body = (item.body || '').toLowerCase();
             const text = `${title}\n${body}`;
 
-            const existingIssueLabels = new Set((issue.labels || []).map((label) => label.name));
+            const existingItemLabels = new Set((item.labels || []).map((label) => label.name));
             const allRepoLabels = await github.paginate(github.rest.issues.listLabelsForRepo, {
               owner,
               repo,
@@ -114,7 +117,7 @@ jobs:
 
             const requestedLabels = ["GSSoC'26", 'mentor:xthxr', chooseTypeLabel(), chooseLevelLabel()].filter(Boolean);
             const labelsToAdd = requestedLabels.filter(
-              (label) => repoLabelNames.has(label) && !existingIssueLabels.has(label)
+              (label) => repoLabelNames.has(label) && !existingItemLabels.has(label)
             );
 
             if (labelsToAdd.length === 0) {
@@ -125,7 +128,7 @@ jobs:
             await github.rest.issues.addLabels({
               owner,
               repo,
-              issue_number: issueNumber,
+              issue_number: itemNumber,
               labels: labelsToAdd
             });
 
