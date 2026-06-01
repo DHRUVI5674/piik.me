@@ -12,6 +12,7 @@
 - [Requesting a Feature](#requesting-a-feature)
 - [Security Vulnerabilities](#security-vulnerabilities)
 - [Community](#community)
+- [Related Documentation](#related-documentation)
 
 ---
 
@@ -158,6 +159,16 @@ Feature requests with community support (👍 reactions) are prioritized.
 **Please do not report security vulnerabilities in public GitHub issues.**
 
 If you discover a security issue, refer to [SECURITY.md](SECURITY.md) for responsible disclosure instructions.
+
+---
+
+## Related Documentation
+
+For additional project information, see:
+
+- [README.md](README.md) – Project overview and getting started guide
+- [CONTRIBUTING.md](CONTRIBUTING.md) – Contribution guidelines and development workflow
+- [docs/FIREBASE_SETUP.md](docs/FIREBASE_SETUP.md) – Detailed Firebase configuration and setup instructions
 
 ---
 
