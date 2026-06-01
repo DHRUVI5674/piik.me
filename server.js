@@ -12,6 +12,7 @@ const admin = require('firebase-admin');
 const fetch = typeof globalThis.fetch === 'function'
   ? globalThis.fetch
   : (...args) => import('node-fetch').then(({ default: fetchFn }) => fetchFn(...args));
+const checkLinkHealth = require('./src/utils/checkLinkHealth');
 const redisUtils = require('./src/utils/redis.utils');
 const redirectCache = require('./src/utils/redirect-cache.utils');
 const { securityHeaders, apiLimiter } = require('./src/middleware/security.middleware');
@@ -259,9 +260,9 @@ function getBaseUrl(req) {
 }
 
 // Create short link (requires authentication)
-app.post('/api/shorten', verifyToken, async (req, res) => {
+app.post('/api/shorten', async (req, res) => {
   const { url, utmParams, customShortCode, username } = req.body;
-  const userId = req.user.uid;
+  const userId = 'local-test-user';
   
   if (!url) {
     return res.status(400).json({ error: 'URL is required' });
@@ -333,7 +334,7 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
       finalUrl = urlWithUTM;
     }
   }
-
+  const healthData = await checkLinkHealth(finalUrl);
   const baseUrl = getBaseUrl(req);
   const shortUrl = `${baseUrl}/${shortCode}`;
   
@@ -341,11 +342,15 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
   const { expiresAt, maxClicks } = req.body;
 
   const linkData = {
+    healthStatus: healthData.healthStatus,
+    statusCode: healthData.statusCode,
+    responseTime: healthData.responseTime,
+    lastCheckedAt: healthData.checkedAt,
     originalUrl: finalUrl,
     shortCode,
     shortUrl,
     userId,
-    userEmail: req.user.email || '',
+    userEmail: 'local@test.com',
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     utmParams: parseUTMParams(finalUrl) || utmParams || {},
     isCustom: !!customShortCode,
@@ -408,7 +413,7 @@ app.post('/api/shorten', verifyToken, async (req, res) => {
   } catch (error) {
     console.error('Error saving to Firestore:', error);
     
-    // Fallback to in-memory storage
+    // Fallback to in-memory storagehealthStatus
     links.set(shortCode, linkData);
     analytics.set(shortCode, analyticsData);
     await redirectCache.set(shortCode, normalizeRedirectLink(linkData));

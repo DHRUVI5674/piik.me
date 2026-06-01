@@ -1292,7 +1292,10 @@ function displayLinks(links, filter) {
                     <div class="link-destination">${link.originalUrl}</div>
                 `}
                 <div class="link-meta">
-                    <span><i class="fas fa-calendar"></i> ${formatDate(link.createdAt)}</span>
+                <span class="health-badge health-${link.healthStatus || 'unknown'}">
+                <i class="fas fa-heartbeat"></i>${link.healthStatus || 'unknown'}
+                </span>
+                <span><i class="fas fa-calendar"></i> ${formatDate(link.createdAt)}</span>
                     ${link.utmParams && !link.splitTest ? '<span><i class="fas fa-tags"></i> UTM Enabled</span>' : ''}
                     ${isInactive && daysRemaining ? `<span style="color: var(--accent-red);"><i class="fas fa-clock"></i> Deletes in ${daysRemaining} days</span>` : ''}
                 </div>
