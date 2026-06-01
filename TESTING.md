@@ -31,7 +31,7 @@ All contributors are expected to run the relevant sections of this checklist bef
 
 ## Prerequisites
 
-- Node.js v14+
+- Node.js v16+
 - A Firebase project configured for testing (separate from production)
 - A `.env.test` file (copy `.env.example` and fill in test Firebase credentials)
 - `npm` installed
@@ -73,7 +73,7 @@ All contributors are expected to run the relevant sections of this checklist bef
 
 ## Running Tests
 
-Currently, tests are manual. Future automated test integration is planned (see [ROADMAP.md](ROADMAP.md)).
+Currently, tests are manual. Automated testing (unit, integration, and end-to-end tests) is planned for future releases.
 
 To run the server in a way that makes manual testing straightforward:
 
@@ -203,7 +203,7 @@ Watch the dashboard update in real time.
 
 ## Firebase & Database Testing
 
-- Verify Firestore `links`, `analytics`, and `bioLinks` collections are being written to after each action.
+- Verify Firestore `links` and `bioLinks` collections are being written to after relevant actions.
 - Confirm Firestore security rules prevent one user from reading or modifying another user's data.
 - Test with an expired Firebase token to confirm the middleware rejects it with `401`.
 - Confirm server timestamps are used (not client-side dates) by checking Firestore directly in the Firebase console.
@@ -231,11 +231,11 @@ Watch the dashboard update in real time.
 
 ## Security Testing
 
-- Confirm all API routes that modify data require a valid Firebase Auth token.
+- Confirm protected API routes require a valid Firebase Auth token and public endpoints behave as intended.
 - Attempt to access another user's links by modifying the `userId` in requests — should be rejected by Firestore rules.
 - Test for XSS: enter `<script>alert(1)</script>` in the URL field and bio fields. The app uses `dompurify` — the script should not execute.
 - Verify `helmet` security headers are present in API responses (`X-Content-Type-Options`, `X-Frame-Options`, etc.).
-- Confirm rate limiting kicks in after 100 requests per 15 minutes from the same IP on `/api/` routes.
+- Confirm rate limiting kicks in after 100 requests per 15 minutes from the same IP.
 
 ---
 
@@ -249,4 +249,4 @@ If you find a bug during testing, please [open an issue](https://github.com/xthx
 - Browser and OS version
 - Relevant console errors or screenshots
 
-You can also use the in-app **Bug Report** button which automatically creates a GitHub issue via `/api/github/bug`.
+You can also use the in-app **Bug Report** button (if enabled) to quickly submit bug reports to the project maintainers.
