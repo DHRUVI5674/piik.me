@@ -5,7 +5,6 @@ const cors = require('cors');
 const path = require('path');
 const { nanoid } = require('nanoid');
 const admin = require('firebase-admin');
-const fetch = require('node-fetch');
 const redisUtils = require('./src/utils/redis.utils');
 const redirectCache = require('./src/utils/redirect-cache.utils');
 const { securityHeaders, apiLimiter } = require('./src/middleware/security.middleware');
