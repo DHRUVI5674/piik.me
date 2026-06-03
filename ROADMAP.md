@@ -164,9 +164,8 @@ If you're tackling any of these, please open an issue first so efforts aren't du
 
 ## Roadmap Disclaimer
 
-This roadmap is intended as a guide rather than a promisse. Priorities may change based on community feedback, contributor availability, and project needs.
+This roadmap is intended as a guide rather than a promise. Priorities may change based on community feedback, contributor availability, and project needs.
 
 ---
 
 _Last updated: June 2026 · PIIK.ME open-source project_
-"" 
