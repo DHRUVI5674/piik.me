@@ -18,43 +18,43 @@ The long-term goal is to provide an alternative to proprietary platforms while r
 
 ## Status Legend
 
-| Symbol | Meaning |
-|---|---|
-| ✅ | Shipped |
-| 🔄 | In progress |
-| 🔥 | High Priority |
-| ⭐ | Medium Priority |
-| 💡 | Nice to Have |
+| Symbol | Meaning         |
+| ------ | --------------- |
+| ✅     | Shipped         |
+| 🔄     | In progress     |
+| 🔥     | High Priority   |
+| ⭐     | Medium Priority |
+| 💡     | Nice to Have    |
 
 ---
 
 ## Recently Shipped
 
-| Feature | Version |
-|---|---|
-| ✅ URL shortening with custom short codes | v0.1 |
-| ✅ Real-time analytics via Socket.IO | v0.1 |
-| ✅ QR code generation and download | v0.1 |
-| ✅ UTM parameter builder and tracking | v0.1 |
-| ✅ Device and browser breakdown charts | v0.1 |
-| ✅ Referrer tracking | v0.1 |
-| ✅ Bio link pages (`piik.me/<username>`) | v0.2-beta |
-| ✅ Drag-and-drop link ordering on bio pages | v0.2-beta |
-| ✅ Verified badge system | v0.2-beta |
+| Feature                                             | Version   |
+| --------------------------------------------------- | --------- |
+| ✅ URL shortening with custom short codes           | v0.1      |
+| ✅ Real-time analytics via Socket.IO                | v0.1      |
+| ✅ QR code generation and download                  | v0.1      |
+| ✅ UTM parameter builder and tracking               | v0.1      |
+| ✅ Device and browser breakdown charts              | v0.1      |
+| ✅ Referrer tracking                                | v0.1      |
+| ✅ Bio link pages (`piik.me/<username>`)            | v0.2-beta |
+| ✅ Drag-and-drop link ordering on bio pages         | v0.2-beta |
+| ✅ Verified badge system                            | v0.2-beta |
 | ✅ Animated background styles (mesh, glassmorphism) | v0.2-beta |
-| ✅ Rate limiting with `express-rate-limit` | v0.2-beta |
-| ✅ Security headers with `helmet` | v0.2-beta |
-| ✅ Redis caching layer (`@upstash/redis`) | v0.2-beta |
+| ✅ Rate limiting with `express-rate-limit`          | v0.2-beta |
+| ✅ Security headers with `helmet`                   | v0.2-beta |
+| ✅ Redis caching layer (`@upstash/redis`)           | v0.2-beta |
 
 ---
 
 ## In Progress
 
-| Feature | Notes |
-|---|---|
-| 🔄 Automated test suite | Unit and integration tests using Jest |
-| 🔄 Improved error handling and logging | Structured logs via morgan + Sentry integration |
-| 🔄 Contributor documentation improvements | This set of documents |
+| Feature                                   | Notes                                           |
+| ----------------------------------------- | ----------------------------------------------- |
+| 🔄 Automated test suite                   | Unit and integration tests using Jest           |
+| 🔄 Improved error handling and logging    | Structured logs via morgan + Sentry integration |
+| 🔄 Contributor documentation improvements | This set of documents                           |
 
 ---
 
@@ -62,51 +62,51 @@ The long-term goal is to provide an alternative to proprietary platforms while r
 
 ### Core Features
 
-| Priority | Feature | Description |
-|---|---|---|
-| 🔥 | Custom domain support | Map your own domain to your short links |
-| 🔥 | Link expiry / TTL | Set a short link to auto-expire after a date or number of clicks |
-| 🔥 | Link editing | Update the destination URL of an existing short link |
-| 🔥 | Link deletion | Delete a short link and its analytics data |
-| ⭐ | Password-protected links | Require a password before redirecting |
-| ⭐ | Bulk link creation | Upload a CSV to shorten multiple URLs at once |
-| ⭐ | Click-fraud filtering | Detect and exclude bot/spam traffic from analytics |
+| Priority | Feature                  | Description                                                      |
+| -------- | ------------------------ | ---------------------------------------------------------------- |
+| 🔥       | Custom domain support    | Map your own domain to your short links                          |
+| 🔥       | Link expiry / TTL        | Set a short link to auto-expire after a date or number of clicks |
+| 🔥       | Link editing             | Update the destination URL of an existing short link             |
+| 🔥       | Link deletion            | Delete a short link and its analytics data                       |
+| ⭐       | Password-protected links | Require a password before redirecting                            |
+| ⭐       | Bulk link creation       | Upload a CSV to shorten multiple URLs at once                    |
+| ⭐       | Click-fraud filtering    | Detect and exclude bot/spam traffic from analytics               |
 
 ### Analytics
 
-| Priority | Feature | Description |
-|---|---|---|
-| 🔥 | Dashboard overview | Aggregate stats across all links in one view |
-| 🔥 | Analytics data export | Download analytics as CSV or JSON |
-| ⭐ | Geographic analytics | Country and region breakdown of clicks |
-| ⭐ | Time-series charts | Clicks over time (hourly, daily, weekly) |
+| Priority | Feature               | Description                                  |
+| -------- | --------------------- | -------------------------------------------- |
+| 🔥       | Dashboard overview    | Aggregate stats across all links in one view |
+| 🔥       | Analytics data export | Download analytics as CSV or JSON            |
+| ⭐       | Geographic analytics  | Country and region breakdown of clicks       |
+| ⭐       | Time-series charts    | Clicks over time (hourly, daily, weekly)     |
 
 ### Bio Links
 
-| Priority | Feature | Description |
-|---|---|---|
-| 🔥 | Profile picture upload | Upload a profile image directly instead of pasting a URL |
-| ⭐ | Link click tracking on bio pages | Per-link click counts on bio pages |
-| ⭐ | Custom bio page themes | More background and color theme options |
-| 💡 | Schedule links | Show or hide bio links on a schedule |
+| Priority | Feature                          | Description                                              |
+| -------- | -------------------------------- | -------------------------------------------------------- |
+| 🔥       | Profile picture upload           | Upload a profile image directly instead of pasting a URL |
+| ⭐       | Link click tracking on bio pages | Per-link click counts on bio pages                       |
+| ⭐       | Custom bio page themes           | More background and color theme options                  |
+| 💡       | Schedule links                   | Show or hide bio links on a schedule                     |
 
 ### Developer & Platform
 
-| Priority | Feature | Description |
-|---|---|---|
-| 🔥 | Public API documentation | OpenAPI / Swagger spec for the REST API |
-| ⭐ | API key authentication | Token-based API access without Firebase tokens |
-| ⭐ | Webhooks | Send a POST request to a URL on each click event |
-| ⭐ | Docker support | Official `Dockerfile` and `docker-compose.yml` |
-| 💡 | CLI tool | Create and manage short links from the terminal |
+| Priority | Feature                  | Description                                      |
+| -------- | ------------------------ | ------------------------------------------------ |
+| 🔥       | Public API documentation | OpenAPI / Swagger spec for the REST API          |
+| ⭐       | API key authentication   | Token-based API access without Firebase tokens   |
+| ⭐       | Webhooks                 | Send a POST request to a URL on each click event |
+| ⭐       | Docker support           | Official `Dockerfile` and `docker-compose.yml`   |
+| 💡       | CLI tool                 | Create and manage short links from the terminal  |
 
 ### Infrastructure & DX
 
-| Priority | Feature | Description |
-|---|---|---|
-| 🔥 | GitHub Actions CI | Automated linting and tests on every PR |
-| ⭐ | Automated releases | `CHANGELOG.md` generated from commit history |
-| 💡 | Internationalization (i18n) | Multi-language support for the frontend |
+| Priority | Feature                     | Description                                  |
+| -------- | --------------------------- | -------------------------------------------- |
+| 🔥       | GitHub Actions CI           | Automated linting and tests on every PR      |
+| ⭐       | Automated releases          | `CHANGELOG.md` generated from commit history |
+| 💡       | Internationalization (i18n) | Multi-language support for the frontend      |
 
 ---
 
@@ -114,14 +114,14 @@ The long-term goal is to provide an alternative to proprietary platforms while r
 
 These ideas have community interest but have not been prioritized yet:
 
-| Priority | Idea | Notes |
-|---|---|---|
-| 💡 | Team / workspace support | Multiple users sharing a link workspace |
-| 💡 | Branded QR codes | QR codes with logo overlays |
-| 💡 | A/B link testing | Split traffic between two destination URLs |
-| 💡 | Mobile app | React Native or PWA for managing links on the go |
-| 💡 | Self-hosted analytics alternative | Option to replace Firestore analytics with a local SQLite store |
-| 💡 | Zapier / Make integration | Connect link events to external automation workflows |
+| Priority | Idea                              | Notes                                                           |
+| -------- | --------------------------------- | --------------------------------------------------------------- |
+| 💡       | Team / workspace support          | Multiple users sharing a link workspace                         |
+| 💡       | Branded QR codes                  | QR codes with logo overlays                                     |
+| 💡       | A/B link testing                  | Split traffic between two destination URLs                      |
+| 💡       | Mobile app                        | React Native or PWA for managing links on the go                |
+| 💡       | Self-hosted analytics alternative | Option to replace Firestore analytics with a local SQLite store |
+| 💡       | Zapier / Make integration         | Connect link events to external automation workflows            |
 
 ---
 
@@ -164,8 +164,9 @@ If you're tackling any of these, please open an issue first so efforts aren't du
 
 ## Roadmap Disclaimer
 
-This roadmap is intended as a guide rather than a promise. Priorities may change based on community feedback, contributor availability, and project needs.
+This roadmap is intended as a guide rather than a promisse. Priorities may change based on community feedback, contributor availability, and project needs.
 
 ---
 
-*Last updated: June 2026 · PIIK.ME open-source project*
+_Last updated: June 2026 · PIIK.ME open-source project_
+"" 
