@@ -237,6 +237,13 @@ function navigateToPage(page, updateHistory = true) {
         page = 'home';
     }
     
+    // Stop analytics polling when leaving the analytics page
+    if (window.analyticsPollInterval) {
+        clearInterval(window.analyticsPollInterval);
+        window.analyticsPollInterval = null;
+        window.analyticsPollFilter = null;
+    }
+    
     currentPage = page;
     
     // Update browser URL without reloading
@@ -2433,6 +2440,7 @@ async function loadAnalyticsData(linkFilter) {
             const linkData = entry.linkData || {};
             const shortCode = entry.shortCode;
             const analytics = entry.analytics;
+            if (!analytics) continue; // Skip entries with no analytics data
                 
                 // Read split test if filtering by a single link
                 if (linkFilter !== 'all' && linkData.splitTest) {
