@@ -91,6 +91,20 @@ html[data-theme="dark"] {
     
     --overlay: rgba(0, 0, 0, 0.8);
 }
+.date-range-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.date-range-btn.active {
+    background: var(--accent-purple);
+    color: white;
+    border-color: var(--accent-purple);
+}
 
 /* Light Theme - Clean */
 html[data-theme="light"] {
