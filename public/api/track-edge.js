@@ -123,16 +123,18 @@ module.exports = async (req, res) => {
       const clickRef = analyticsRef.collection('clicks').doc();
       await clickRef.set(clickData);
       
-      // Update aggregate counters
+      // Update aggregate counters using Distributed Counters pattern
       const locationKey = `${geo.city}, ${geo.region}`;
-      await analyticsRef.update({
+      const shardId = Math.floor(Math.random() * 10).toString(); // Random shard 0-9
+      const shardRef = analyticsRef.collection('shards').doc(shardId);
+      await shardRef.set({
         clicks: admin.firestore.FieldValue.increment(1),
         [`devices.${deviceType}`]: admin.firestore.FieldValue.increment(1),
         [`browsers.${browser}`]: admin.firestore.FieldValue.increment(1),
         [`countries.${geo.country}`]: admin.firestore.FieldValue.increment(1),
         [`locations.${locationKey}`]: admin.firestore.FieldValue.increment(1),
         [`referrers.${referer}`]: admin.firestore.FieldValue.increment(1)
-      });
+      }, { merge: true });
     } catch (firestoreError) {
       console.warn('Firestore storage failed (non-critical):', firestoreError.message);
       // Don't fail the request if Firestore fails - Redis is primary

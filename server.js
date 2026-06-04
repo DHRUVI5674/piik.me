@@ -107,6 +107,38 @@ const COLLECTIONS = {
   BIO_LINKS: 'bioLinks'
 };
 
+// Helper to aggregate distributed analytics shards
+async function getAggregatedAnalytics(firestoreId) {
+  const baseDoc = await db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId).get();
+  let data = baseDoc.exists ? baseDoc.data() : {};
+
+  try {
+    const shardsSnapshot = await db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId).collection('shards').get();
+    
+    shardsSnapshot.forEach(shard => {
+      const s = shard.data();
+      data.clicks = (data.clicks || 0) + (s.clicks || 0);
+      data.impressions = (data.impressions || 0) + (s.impressions || 0);
+      data.shares = (data.shares || 0) + (s.shares || 0);
+
+      // Merge nested objects dynamically
+      const mergeNested = (key) => {
+        if (!s[key]) return;
+        if (!data[key]) data[key] = {};
+        for (const [k, v] of Object.entries(s[key])) {
+          data[key][k] = (data[key][k] || 0) + v;
+        }
+      };
+
+      ['devices', 'browsers', 'referrers', 'countries', 'locations', 'variantClicks'].forEach(mergeNested);
+    });
+  } catch (err) {
+    console.error("Error reading shards:", err);
+  }
+
+  return data;
+}
+
 // Middleware to verify Firebase token
 
 async function verifyToken(req, res, next) {
@@ -489,12 +521,13 @@ app.get('/api/analytics/:shortCode', async (req, res) => {
     // Try Firestore first
     const firestoreId = toFirestoreId(shortCode);
     const linkDoc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
-    const analyticsDoc = await db.collection(COLLECTIONS.ANALYTICS).doc(firestoreId).get();
     
-    if (linkDoc.exists && analyticsDoc.exists) {
+    if (linkDoc.exists) {
+      // Use aggregated analytics from shards
+      const aggregatedStats = await getAggregatedAnalytics(firestoreId);
       return res.json({
         link: linkDoc.data(),
-        analytics: analyticsDoc.data()
+        analytics: aggregatedStats
       });
     }
   } catch (error) {
@@ -937,13 +970,8 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
 
       console.log(`Processing link: ${doc.id}`, { shortCode: linkData.shortCode, isActive: linkData.isActive });
       
-      // Use the Firestore document ID (which is already safe) instead of shortCode field
-      const analyticsDoc = await db.collection(COLLECTIONS.ANALYTICS).doc(doc.id).get();
-      const analyticsData = analyticsDoc.exists ? analyticsDoc.data() : {
-        impressions: 0,
-        clicks: 0,
-        shares: 0
-      };
+      // Use aggregated analytics from shards
+      const analyticsData = await getAggregatedAnalytics(doc.id);
       
       userLinks.push({
         ...linkData,
@@ -1282,12 +1310,15 @@ app.post('/api/track/impression/:shortCode', async (req, res) => {
     const doc = await analyticsRef.get();
     
     if (doc.exists) {
-      await analyticsRef.update({
+      // Use distributed counter: write to a random shard
+      const NUM_SHARDS = 10;
+      const shardId = Math.floor(Math.random() * NUM_SHARDS).toString();
+      const shardRef = analyticsRef.collection('shards').doc(shardId);
+      await shardRef.set({
         impressions: admin.firestore.FieldValue.increment(1)
-      });
+      }, { merge: true });
       
-      const updated = await analyticsRef.get();
-      const stats = updated.data();
+      const stats = { impressions: 1 };
       
       // Emit real-time update
       io.emit(`analytics:${shortCode}`, {
@@ -1471,9 +1502,13 @@ app.head('/:shortCode', async (req, res) => {
     const doc = await analyticsRef.get();
     
     if (doc.exists) {
-      await analyticsRef.update({
+      // Use distributed counter: write to a random shard
+      const NUM_SHARDS = 10;
+      const shardId = Math.floor(Math.random() * NUM_SHARDS).toString();
+      const shardRef = analyticsRef.collection('shards').doc(shardId);
+      await shardRef.set({
         impressions: admin.firestore.FieldValue.increment(1)
-      });
+      }, { merge: true });
     }
   } catch (error) {
     console.error('Error tracking impression:', error);
@@ -1646,10 +1681,14 @@ async function trackClickAndEmit(shortCode, req, variantLabel = null) {
           updateData[`variantClicks.${safeLabel}`] = admin.firestore.FieldValue.increment(1);
         }
 
-        await analyticsRef.update(updateData);
+        // Distributed counter: Write to a random shard instead of the main document
+        const NUM_SHARDS = 10;
+        const shardId = Math.floor(Math.random() * NUM_SHARDS).toString();
+        const shardRef = analyticsRef.collection('shards').doc(shardId);
+        await shardRef.set(updateData, { merge: true });
         
-        const updated = await analyticsRef.get();
-        const stats = updated.data();
+        // For real-time Socket.io updates, send the increment data to avoid expensive shard reads
+        const stats = updateData;
         
         // Emit real-time update
         io.emit(`analytics:${shortCode}`, {
