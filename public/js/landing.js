@@ -1,9 +1,8 @@
 // ================================
-// PIIK.ME - LANDING INTERACTIVITY
+// PIIK.ME - LANDING INTERACTIVITY (Cleaned)
 // ================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing...');
     initWorkerGlobe();
     initMobileMenu();
     initScrollAnimations();
@@ -11,12 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initActionButtons();
 });
 
-// ================================
-// 3D GLOBE VISUALIZATION
-// ================================
+// 1. GLOBE WORKER
 function initWorkerGlobe() {
     const canvas = document.getElementById('globeViz');
     if (!canvas) return;
+    if (!('transferControlToOffscreen' in canvas)) return;
 
     if (!('transferControlToOffscreen' in canvas)) {
         console.error('OffscreenCanvas is not supported in this browser.');
@@ -52,9 +50,7 @@ function initWorkerGlobe() {
     }
 }
 
-// ================================
-// MOBILE MENU
-// ================================
+// 2. MOBILE MENU
 function initMobileMenu() {
     const toggle = document.getElementById('mobileMenuToggle');
     const menu = document.getElementById('mobileMenu');
@@ -84,7 +80,10 @@ function initMobileMenu() {
             document.body.style.overflow = 'hidden';
             syncMenuState(true);
         } else {
-            closeMenu();
+            menu.classList.add('translate-x-full');
+            document.body.style.overflow = '';
+            const icon = toggle.querySelector('i');
+            if (icon) icon.className = 'fas fa-bars text-xl';
         }
     }
 

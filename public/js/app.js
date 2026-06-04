@@ -1117,17 +1117,28 @@ async function handleCreateLink() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                url,
-                customShortCode: customCode || null,
-                username: userBioSlug || null,
-                utmParams: Object.keys(utmParams).length > 0 ? utmParams : null,
-                expiresAt: document.getElementById('expiresAt')?.value || null,
-                maxClicks: document.getElementById('maxClicks')?.value
-                    ? parseInt(document.getElementById('maxClicks').value)
-                    : null
-            })
-        });
+          body: JSON.stringify({
+    url,
+    customShortCode: customCode || null,
+    username: userBioSlug || null,
+    utmParams: Object.keys(utmParams).length > 0 ? utmParams : null,
+
+    notes: document.getElementById('linkNotes')?.value || '',
+
+    tags: document.getElementById('linkTags')?.value
+        ? document.getElementById('linkTags').value
+            .split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag.length > 0)
+        : [],
+
+    expiresAt: document.getElementById('expiresAt')?.value || null,
+
+    maxClicks: document.getElementById('maxClicks')?.value
+        ? parseInt(document.getElementById('maxClicks').value)
+        : null
+})
+});
         
         if (!response.ok) {
             let errorMsg = 'Failed to create link';
@@ -1289,10 +1300,45 @@ function displayLinks(links, filter) {
                         ${link.variants.map(v => `<span class="variant-summary-tag"><strong style="color: var(--accent-purple);">${v.label}</strong> (${v.weight}%): <span style="opacity: 0.8;">${v.url}</span></span>`).join('')}
                     </div>
                 ` : `
-                    <div class="link-destination">${link.originalUrl}</div>
+                   <div class="link-destination">${link.originalUrl}</div>
+
+${link.notes ? `
+<div class="link-notes" style="
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+">
+    <i class="fas fa-sticky-note"></i>
+    ${link.notes}
+</div>
+` : ''}
+
+${link.tags && link.tags.length ? `
+    <div class="link-tags" style="
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    ">
+        ${link.tags.map(tag => `
+            <span style="
+                background: var(--accent-color);
+                color: white;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+            ">
+                ${tag}
+            </span>
+        `).join('')}
+    </div>
+` : ''}
                 `}
                 <div class="link-meta">
-                    <span><i class="fas fa-calendar"></i> ${formatDate(link.createdAt)}</span>
+                <span class="health-badge health-${link.healthStatus || 'unknown'}">
+                <i class="fas fa-heartbeat"></i>${link.healthStatus || 'unknown'}
+                </span>
+                <span><i class="fas fa-calendar"></i> ${formatDate(link.createdAt)}</span>
                     ${link.utmParams && !link.splitTest ? '<span><i class="fas fa-tags"></i> UTM Enabled</span>' : ''}
                     ${isInactive && daysRemaining ? `<span style="color: var(--accent-red);"><i class="fas fa-clock"></i> Deletes in ${daysRemaining} days</span>` : ''}
                 </div>
@@ -2493,7 +2539,6 @@ async function loadAnalyticsData(linkFilter) {
                     });
                 }
             }
-        }
         
         // Sort click history by timestamp
         allClickHistory.sort((a, b) => {
@@ -2861,6 +2906,66 @@ function updateStatChange(elementId, changeData) {
     element.style.display = 'block';
     element.className = `stat-change ${changeData.isPositive ? 'positive' : 'negative'}`;
     element.textContent = `${changeData.isPositive ? '+' : '-'}${changeData.value.toFixed(1)}%`;
+}
+
+// Update analytics UI with data
+function updateAnalyticsUI(impressions, clicks, shares, devices, browsers, referrers, clickHistory, devicesObj) {
+    // Update main stats
+    const impressionsEl = document.getElementById('analyticsImpressions');
+    const clicksEl = document.getElementById('analyticsClicks');
+    const ctrEl = document.getElementById('analyticsCTR');
+    const visitorsEl = document.getElementById('analyticsVisitors');
+    
+    if (impressionsEl) impressionsEl.textContent = Number(impressions).toLocaleString();
+    if (clicksEl) clicksEl.textContent = Number(clicks).toLocaleString();
+    
+    // Calculate CTR
+    const ctr = impressions > 0 ? ((clicks / impressions) * 100) : 0;
+    if (ctrEl) ctrEl.textContent = ctr.toFixed(1) + '%';
+    
+    // Calculate unique visitors from click history
+    let uniqueVisitors = clicks;
+    if (clickHistory && clickHistory.length > 0) {
+        const visitorFingerprints = new Set();
+        clickHistory.forEach(click => {
+            const fingerprint = `${click.referrer || 'unknown'}_${click.device || 'unknown'}_${click.browser || 'unknown'}`;
+            visitorFingerprints.add(fingerprint);
+        });
+        uniqueVisitors = visitorFingerprints.size;
+    }
+    if (visitorsEl) visitorsEl.textContent = uniqueVisitors.toLocaleString();
+    
+    // Update percentage changes (hide them when no data)
+    updateStatChange('impressionsChange', null);
+    updateStatChange('clicksChange', null);
+    updateStatChange('ctrChange', null);
+    updateStatChange('visitorsChange', null);
+    
+    // Process devices list
+    const devicesList = Object.entries(devices || {})
+        .sort((a, b) => b[1] - a[1])
+        .map(([device, count]) => ({ device, count }));
+    
+    // Process browsers list
+    const browsersList = Object.entries(browsers || {})
+        .sort((a, b) => b[1] - a[1])
+        .map(([browser, count]) => ({ browser, count }));
+    
+    // Process referrers list (top 5)
+    const topReferrers = Object.entries(referrers || {})
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([source, count]) => ({ source, count }));
+    
+    // Render lists
+    renderDevicesList(devicesList);
+    renderBrowsersList(browsersList);
+    renderReferrersList(topReferrers);
+    
+    // Process clicks over time for chart
+    const clicksOverTimeData = processClicksOverTime(clickHistory || []);
+    renderClicksChart(clicksOverTimeData);
+    renderReferrersChart(topReferrers);
 }
 
 // ================================
