@@ -2632,6 +2632,11 @@ async function loadAnalyticsData(linkFilter) {
         
         // Render charts and lists
         renderClicksChart(clicksOverTimeData);
+        const buttons = document.querySelectorAll('.date-range-btn');
+            buttons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.days === 'all');
+});
+
         renderReferrersChart(topReferrers);
         renderGeographicList(geographicList);
         renderDevicesList(devicesList);
