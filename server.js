@@ -160,7 +160,7 @@ async function verifyToken(req, res, next) {
   const token = authHeader.split('Bearer ')[1];
   
   try {
-    const decodedToken = await auth.verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token, true);
     req.user = decodedToken;
     next();
   } catch (error) {
@@ -539,8 +539,9 @@ app.get('/api/user/analytics', verifyToken, async (req, res) => {
 });
 
 // Get analytics for a short link
-app.get('/api/analytics/:shortCode', async (req, res) => {
+app.get('/api/analytics/:shortCode', verifyToken, async (req, res) => {
   const { shortCode } = req.params;
+  const userId = req.user.uid;
   
   try {
     // Try Firestore first
@@ -548,10 +549,15 @@ app.get('/api/analytics/:shortCode', async (req, res) => {
     const linkDoc = await db.collection(COLLECTIONS.LINKS).doc(firestoreId).get();
     
     if (linkDoc.exists) {
+      const linkData = linkDoc.data();
+      if (linkData.userId !== userId) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+
       // Use aggregated analytics from shards
       const aggregatedStats = await getAggregatedAnalytics(firestoreId);
       return res.json({
-        link: linkDoc.data(),
+        link: linkData,
         analytics: aggregatedStats
       });
     }
@@ -565,6 +571,10 @@ app.get('/api/analytics/:shortCode', async (req, res) => {
   
   if (!link || !stats) {
     return res.status(404).json({ error: 'Link not found' });
+  }
+
+  if (link.userId !== userId) {
+    return res.status(403).json({ error: 'Forbidden' });
   }
 
   res.json({
