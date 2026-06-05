@@ -159,7 +159,7 @@ async function verifyToken(req, res, next) {
   const token = authHeader.split('Bearer ')[1];
   
   try {
-    const decodedToken = await auth.verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token, true);
     req.user = decodedToken;
     next();
   } catch (error) {
