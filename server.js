@@ -19,6 +19,26 @@ const { securityHeaders, apiLimiter, bugReportLimiter } = require('./src/middlew
 const splitTestService = require('./src/services/splitTest.service');
 require('dotenv').config();
 
+// Validate required environment variables on startup
+function validateEnv() {
+  const required = ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY', 'SESSION_SECRET'];
+  const missing = required.filter(key => !process.env[key]);
+  if (missing.length > 0) {
+    console.error('FATAL: Missing required environment variables:');
+    missing.forEach(key => console.error(`  - ${key}`));
+    console.error('\nThe server cannot start without these variables.');
+    console.error('Copy .env.example to .env and fill in the values.');
+    process.exit(1);
+  }
+  if (process.env.SESSION_SECRET.length < 32) {
+    console.error('FATAL: SESSION_SECRET must be at least 32 characters long for security.');
+    console.error('Generate a secure random string (e.g., using openssl rand -hex 32).');
+    process.exit(1);
+  }
+}
+
+validateEnv();
+
 // Initialize Firebase Admin
 let db = null;
 
