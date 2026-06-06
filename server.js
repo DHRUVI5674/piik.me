@@ -944,14 +944,6 @@ app.get('/api/user/links', verifyToken, async (req, res) => {
   console.log(`🔍 Fetching links for user: ${userId}`);
   
   try {
-    // First, let's see ALL documents in the collection for debugging
-    const allDocsSnapshot = await db.collection(COLLECTIONS.LINKS).get();
-    console.log(`Total documents in LINKS collection: ${allDocsSnapshot.docs.length}`);
-    allDocsSnapshot.docs.forEach(doc => {
-      const data = doc.data();
-      console.log(`  Doc ${doc.id}: userId=${data.userId}, shortCode=${data.shortCode}`);
-    });
-    
     // Try with orderBy first
     let linksSnapshot;
     try {
@@ -1058,6 +1050,52 @@ app.delete('/api/user', verifyToken, async (req, res) => {
   } catch (error) {
     console.error('Error deleting account:', error);
     res.status(500).json({ error: 'Failed to delete account' });
+  }
+});
+
+// Get link details by shortCode (requires authentication and ownership)
+app.get('/api/links/:shortCode', verifyToken, async (req, res) => {
+  let { shortCode } = req.params;
+  shortCode = decodeURIComponent(shortCode);
+  const userId = req.user.uid;
+
+  try {
+    const firestoreId = toFirestoreId(shortCode);
+
+    if (db) {
+      const linkRef = db.collection(COLLECTIONS.LINKS).doc(firestoreId);
+      const linkDoc = await linkRef.get();
+
+      if (!linkDoc.exists) {
+        return res.status(404).json({ error: 'Link not found' });
+      }
+
+      const linkData = linkDoc.data();
+
+      // Verify ownership
+      if (linkData.userId !== userId) {
+        return res.status(403).json({ error: 'You do not have permission to view this link' });
+      }
+
+      return res.json({ success: true, link: { id: linkDoc.id, ...linkData } });
+    }
+
+    // In-memory fallback
+    const linkData = links.get(shortCode);
+
+    if (!linkData) {
+      return res.status(404).json({ error: 'Link not found' });
+    }
+
+    // Verify ownership
+    if (linkData.userId !== userId) {
+      return res.status(403).json({ error: 'You do not have permission to view this link' });
+    }
+
+    return res.json({ success: true, link: linkData });
+  } catch (error) {
+    console.error('Error fetching link:', error);
+    res.status(500).json({ error: 'Failed to fetch link', details: error.message });
   }
 });
 
